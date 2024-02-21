@@ -2,7 +2,7 @@
 using OpenTK.Mathematics;
 using RotatingCube.Core.Models;
 
-namespace RotatingCube.Core;
+namespace RotatingCube.Core.Helpers;
 
 public static class ObjectRenderer
 {

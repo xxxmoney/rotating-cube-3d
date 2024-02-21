@@ -1,6 +1,6 @@
 ﻿using OpenTK.Mathematics;
 
-namespace RotatingCube.Core;
+namespace RotatingCube.Core.Helpers;
 
 public static class RandomColorsProvider
 {

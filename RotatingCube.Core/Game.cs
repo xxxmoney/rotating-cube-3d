@@ -3,6 +3,7 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using RotatingCube.Core.Helpers;
 using RotatingCube.Core.Models;
 
 namespace RotatingCube.Core;
@@ -25,6 +26,7 @@ public class Game : IDisposable
         var nativeWindowSettings = new NativeWindowSettings
         {
             ClientSize = new Vector2i(this.options.Width, this.options.Height),
+            WindowBorder = WindowBorder.Fixed,
             Title = this.options.Title, 
             Vsync = VSyncMode.Adaptive,
             Profile = ContextProfile.Compatability,
@@ -33,7 +35,6 @@ public class Game : IDisposable
         this.game = new GameWindow(windowSettings, nativeWindowSettings);
         
         game.Load += HandleLoad;
-        game.Resize += HandleResize;
         game.UpdateFrame += HandleUpdateFrame;
         game.RenderFrame += HandleRenderFrame;
         
@@ -54,12 +55,6 @@ public class Game : IDisposable
     {
         // Set the background color
         GL.ClearColor(Color4.CornflowerBlue);
-    }
-
-    private void HandleResize(ResizeEventArgs e)
-    {
-        // Set the viewport to match the window size
-        GL.Viewport(0, 0, this.options.Width, this.options.Height);
     }
     
     private void HandleKeyboardState(KeyboardState state)
