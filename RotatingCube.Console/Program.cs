@@ -1,3 +1,12 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿
+using RotatingCube.Core;
+using RotatingCube.Core.Models;
 
-Console.WriteLine("Hello, World!");
+var options = new GameOptions
+{
+    Title = "Rotating Cube",
+    RefreshColors = true
+};
+using var game = new Game(options);
+game.Run();
+
