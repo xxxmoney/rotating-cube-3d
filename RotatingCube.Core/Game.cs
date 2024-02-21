@@ -13,6 +13,7 @@ public class Game : IDisposable
     private readonly GameOptions options;
     private Color4[] colors;
     private DateTime lastColorRefresh = DateTime.Now;
+    private Vector2 rotationVelocity = Vector2.Zero;
 
     public Game(GameOptions options)
     {
@@ -61,7 +62,7 @@ public class Game : IDisposable
         GL.Viewport(0, 0, this.options.Width, this.options.Height);
     }
     
-    private static void HandleKeyboardState(KeyboardState state)
+    private void HandleKeyboardState(KeyboardState state)
     {
         if (state.IsKeyDown(Keys.Escape))
         {
@@ -70,19 +71,19 @@ public class Game : IDisposable
 
         if (state.IsKeyDown(Keys.Up))
         {
-            GL.Rotate(Constants.RotationSpeed, Vector3.UnitX);
+            this.rotationVelocity.X += Constants.RotationAcceleration;
         }
         if (state.IsKeyDown(Keys.Down))
         {
-            GL.Rotate(-Constants.RotationSpeed, Vector3.UnitX);
+            this.rotationVelocity.X -= Constants.RotationAcceleration;
         }
         if (state.IsKeyDown(Keys.Left))
         {
-            GL.Rotate(Constants.RotationSpeed, Vector3.UnitY);
+            this.rotationVelocity.Y += Constants.RotationAcceleration;
         }
         if (state.IsKeyDown(Keys.Right))
         {
-            GL.Rotate(-Constants.RotationSpeed, Vector3.UnitY);
+            this.rotationVelocity.Y -= Constants.RotationAcceleration;
         }
     }
 
@@ -129,6 +130,10 @@ public class Game : IDisposable
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         
         ObjectRenderer.RenderCube(this.GetRenderCubeOptions());
+        
+        // Rotate
+        GL.Rotate(this.rotationVelocity.X, Vector3.UnitX);
+        GL.Rotate(this.rotationVelocity.Y, Vector3.UnitY);
         
         // Swap front and back buggers to display new frame
         game.SwapBuffers();
