@@ -10,17 +10,21 @@ namespace RotatingCube.Core;
 public class Game : IDisposable
 {
     private readonly GameWindow game;
+    private readonly GameOptions options;
+    private Color4[] colors;
+    private DateTime lastColorRefresh = DateTime.Now;
 
-    public Game()
+    public Game(GameOptions options)
     {
+        this.options = options;
         var windowSettings = new GameWindowSettings
         {
             UpdateFrequency = Constants.Framerate
         };
         var nativeWindowSettings = new NativeWindowSettings
         {
-            ClientSize = new Vector2i(Constants.DefaultWidth, Constants.DefaultHeight),
-            Title = Constants.Title, 
+            ClientSize = new Vector2i(this.options.Width, this.options.Height),
+            Title = this.options.Title, 
             Vsync = VSyncMode.Adaptive,
             Profile = ContextProfile.Compatability,
             APIVersion = Constants.ApiVersion
@@ -31,6 +35,8 @@ public class Game : IDisposable
         game.Resize += HandleResize;
         game.UpdateFrame += HandleUpdateFrame;
         game.RenderFrame += HandleRenderFrame;
+        
+        RefreshColors();
     }
     
     public void Run()
@@ -49,10 +55,10 @@ public class Game : IDisposable
         GL.ClearColor(Color4.CornflowerBlue);
     }
 
-    private static void HandleResize(ResizeEventArgs e)
+    private void HandleResize(ResizeEventArgs e)
     {
         // Set the viewport to match the window size
-        GL.Viewport(0, 0, Constants.DefaultWidth, Constants.DefaultHeight);
+        GL.Viewport(0, 0, this.options.Width, this.options.Height);
     }
     
     private static void HandleKeyboardState(KeyboardState state)
@@ -80,21 +86,49 @@ public class Game : IDisposable
         }
     }
 
+    private void RefreshColors()
+    {
+        this.colors = RandomColorsProvider.GetRandomColors(Constants.CubeSides);
+        this.lastColorRefresh = DateTime.Now;
+    }
+    private bool TryRefreshColors()
+    {
+        if (DateTime.Now - this.lastColorRefresh < Constants.ColorRefreshInterval)
+        {
+            return false;
+        }
+
+        RefreshColors();
+
+        return true;
+    }
+    
+    private RenderCubeOptions GetRenderCubeOptions() 
+    {
+        if(this.options.RefreshColors)
+        {
+            TryRefreshColors();
+        }
+        
+        return this.options.ImplicitCubeOptions ??
+            new RenderCubeOptions
+            {
+                Size = Constants.RelativeCubeSize,
+                FrontColor = colors[0],
+                BackColor = colors[1],
+                TopColor = colors[2],
+                BottomColor = colors[3],
+                RightColor = colors[4],
+                LeftColor = colors[5]
+            };
+    }
+    
     private void HandleRenderFrame(FrameEventArgs _)
     {
         // Clear previous frame
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         
-        ObjectRenderer.RenderCube(new RenderCubeOptions
-        {
-            Size = Constants.RelativeCubeSize,
-            FrontColor = Color4.Red,
-            BackColor = Color4.Green,
-            TopColor = Color4.Blue,
-            BottomColor = Color4.Yellow,
-            RightColor = Color4.Magenta,
-            LeftColor = Color4.Cyan
-        });
+        ObjectRenderer.RenderCube(this.GetRenderCubeOptions());
         
         // Swap front and back buggers to display new frame
         game.SwapBuffers();
