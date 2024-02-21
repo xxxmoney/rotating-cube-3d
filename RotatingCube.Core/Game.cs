@@ -23,7 +23,7 @@ public class Game : IDisposable
             Title = Constants.Title, 
             Vsync = VSyncMode.Adaptive,
             Profile = ContextProfile.Compatability,
-            APIVersion = new Version(3, 2)
+            APIVersion = Constants.ApiVersion
         };
         this.game = new GameWindow(windowSettings, nativeWindowSettings);
         
@@ -52,7 +52,7 @@ public class Game : IDisposable
     private static void HandleResize(ResizeEventArgs e)
     {
         // Set the viewport to match the window size
-        GL.Viewport(0, 0, e.Width, e.Height);
+        GL.Viewport(0, 0, Constants.DefaultWidth, Constants.DefaultHeight);
     }
     
     private static void HandleKeyboardState(KeyboardState state)
